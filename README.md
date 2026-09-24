@@ -1,4 +1,4 @@
-Rastreador de Compras — Cripto
+## Rastreador de Compras — Cripto
 
 Ferramenta simples para acompanhar o resultado de cada compra de criptomoeda, individualmente e no total da carteira.
 
