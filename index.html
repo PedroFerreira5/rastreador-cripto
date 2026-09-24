@@ -236,7 +236,12 @@ PEPE	100	0.0000098"></textarea>
 
   <footer>
     <span>dados salvos apenas neste navegador</span>
-    <button class="btn btn-ghost" id="clearAllBtn">apagar tudo</button>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn btn-ghost" id="exportBtn">baixar backup</button>
+      <button class="btn btn-ghost" id="importBackupBtn">carregar backup</button>
+      <input type="file" id="importBackupFile" accept="application/json" style="display:none;">
+      <button class="btn btn-ghost" id="clearAllBtn">apagar tudo</button>
+    </div>
   </footer>
 </div>
 
@@ -614,6 +619,62 @@ PEPE	100	0.0000098"></textarea>
     }
     feedback.innerHTML = html;
     if (added > 0 && errors.length === 0) document.getElementById('importText').value = '';
+  });
+
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    const backup = {
+      version: 2,
+      exportedAt: new Date().toISOString(),
+      purchases,
+      currency,
+      currentDollarRate,
+      sortMode
+    };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const dateStr = new Date().toISOString().slice(0,10);
+    a.href = url;
+    a.download = 'backup-rastreador-cripto-' + dateStr + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('importBackupBtn').addEventListener('click', () => {
+    document.getElementById('importBackupFile').click();
+  });
+
+  document.getElementById('importBackupFile').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const backup = JSON.parse(reader.result);
+        if (!Array.isArray(backup.purchases)) throw new Error('formato inválido');
+        const action = confirm(
+          'carregar este backup vai SUBSTITUIR todos os dados salvos agora neste navegador (' + purchases.length + ' compra(s) atuais).\n\n' +
+          'o arquivo tem ' + backup.purchases.length + ' compra(s), de ' + (backup.exportedAt ? backup.exportedAt.slice(0,10) : 'data desconhecida') + '.\n\n' +
+          'quer continuar?'
+        );
+        if (!action) return;
+        purchases = backup.purchases;
+        if (backup.currency === 'USDT' || backup.currency === 'BRL') currency = backup.currency;
+        if (typeof backup.currentDollarRate === 'number') currentDollarRate = backup.currentDollarRate;
+        if (backup.sortMode === 'alpha' || backup.sortMode === 'usdt') sortMode = backup.sortMode;
+        save(); saveCurrency(); saveRate();
+        try { localStorage.setItem('crypto-tracker-sort-v1', sortMode); } catch(err){}
+        document.getElementById('sortSelect').value = sortMode;
+        render();
+        alert('backup carregado com sucesso: ' + purchases.length + ' compra(s).');
+      } catch (err) {
+        alert('não foi possível ler esse arquivo. verifique se é um backup gerado por esta ferramenta.');
+      }
+      e.target.value = '';
+    };
+    reader.readAsText(file);
   });
 
   document.getElementById('clearAllBtn').addEventListener('click', () => {
