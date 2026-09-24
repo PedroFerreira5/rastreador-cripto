@@ -1,6 +1,6 @@
 # Rastreador de Compras — Cripto
 
-Ferramenta simples para acompanhar o resultado de cada compra de criptomoeda, individualmente e no total da carteira.
+Eu estava com dificuldade de acompanhar meus resultados em cripto — fazia várias compras em momentos diferentes, com preços diferentes, e ficava difícil saber se estava ganhando ou perdendo em cada uma. Resolvi fazer essa ferramenta pra resolver isso.
 
 🔗 **Acesse:** https://pedroferreira5.github.io/rastreador-cripto/
 
@@ -35,10 +35,12 @@ Selecione as células da planilha (incluindo o cabeçalho, se quiser — ele é 
 
 Os dados ficam salvos apenas no navegador de quem acessa a página (`localStorage`), presos a este domínio. Não há backend, banco de dados ou coleta de informação — nada sai do seu navegador.
 
-Isso significa:
+**Isso inclui eu, o criador da ferramenta: eu não tenho acesso, não vejo e não recebo os dados que você cadastra.** Não existe nenhum servidor recebendo essas informações — tudo fica só no seu próprio navegador, no seu próprio dispositivo.
+
+Isso também significa:
 - Os dados não sincronizam entre dispositivos ou navegadores diferentes.
 - Limpar os dados de navegação do navegador apaga o histórico cadastrado.
-- Sempre acesse pelo mesmo link para manter o que já foi cadastrado.
+- Sempre acesse pelo mesmo link, no mesmo navegador, para manter o que já foi cadastrado.
 
 ## Tecnologia
 
