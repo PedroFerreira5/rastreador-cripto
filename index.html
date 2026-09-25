@@ -172,7 +172,13 @@
   .del-btn { background: none; border: none; color: var(--paper-dim); cursor: pointer; font-family: inherit; font-size: 12px; padding: 4px 6px; }
   .del-btn:hover { color: var(--loss); }
   .overflow-x { overflow-x: auto; }
-  .table-caption { font-size: 10.5px; color: var(--paper-dim); padding: 10px 18px 0; }
+  .section-hint { font-size: 11px; color: var(--paper-dim); margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+  .help-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px; border: 1px solid var(--line); border-radius: 50%;
+    font-size: 10px; color: var(--paper-dim); cursor: help; flex-shrink: 0;
+  }
+  .help-icon:hover { color: var(--gold); border-color: var(--gold); }
 
   .empty { text-align: center; padding: 48px 20px; color: var(--paper-dim); border: 1px dashed var(--line); border-radius: var(--radius); font-size: 13px; }
   .empty .big { font-size: 16px; color: var(--paper); margin-bottom: 8px; font-weight: 700; }
@@ -371,6 +377,10 @@ PEPE	100	0.0000098"></textarea>
       <option value="usdt">mais USDT investido primeiro</option>
     </select>
     <button class="btn btn-ghost" id="updateAllBtn" type="button">atualizar todos os preços</button>
+  </div>
+  <div class="section-hint">
+    <span class="help-icon" title="&quot;Investido&quot; já inclui a taxa da operação, quando informada. &quot;Valor atual&quot; e &quot;Resultado&quot; de cada compra seguem o preço simulado no campo &quot;vender a ___ USDT&quot; de cada moeda — ou o preço atual real, se você não estiver simulando nada.">ⓘ</span>
+    como ler as tabelas de compras
   </div>
   <div id="coinGroups"></div>
 
@@ -656,7 +666,6 @@ PEPE	100	0.0000098"></textarea>
               <span>realizado <span class="amt ${cls(st.realizedDisplay)}">${fmtMoney(st.realizedDisplay)}</span></span>
             </div>
           </div>
-          <div class="table-caption">histórico de compras desta moeda (registro imutável) — "investido" já inclui taxa; "valor atual" e "resultado" seguem o preço simulado abaixo (ou o preço atual, se não houver simulação)</div>
           <div class="overflow-x">
             <table>
               <thead>
