@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Rastreador de Compras</title>
+<title>Rastreador de Compras — Cripto</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --ink: #10151c;
@@ -16,9 +16,10 @@
     --paper: #ece8de;
     --paper-dim: #a9a599;
     --gold: #c9a15a;
+    --gold-ink: #1a1408;
     --gain: #5fb88a;
     --loss: #d97a6c;
-    --radius: 3px;
+    --radius: 4px;
     box-sizing: border-box;
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -29,83 +30,104 @@
     margin: 0;
     background: var(--ink);
     color: var(--paper);
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'IBM Plex Mono', 'JetBrains Mono', monospace;
     -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 980px; margin: 0 auto; padding: 48px 24px 80px; }
+  ::selection { background: var(--gold); color: var(--gold-ink); }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 48px 24px 80px; }
+
   header {
     display: flex; align-items: baseline; justify-content: space-between;
     border-bottom: 1px solid var(--line); padding-bottom: 20px; margin-bottom: 28px;
     flex-wrap: wrap; gap: 12px;
   }
-  h1 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 28px; margin: 0; letter-spacing: -0.01em; }
-  .sub { font-size: 12.5px; color: var(--paper-dim); margin-top: 4px; }
+  h1 { font-family: inherit; font-weight: 700; font-size: 24px; margin: 0; letter-spacing: -0.01em; color: var(--gold); }
+  .sub { font-size: 12px; color: var(--paper-dim); margin-top: 6px; }
   .currency-toggle { display: flex; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
   .currency-toggle button {
     background: transparent; border: none; color: var(--paper-dim);
-    font-family: inherit; font-size: 12.5px; padding: 7px 14px; cursor: pointer;
+    font-family: inherit; font-size: 12px; padding: 8px 16px; cursor: pointer;
+    transition: background .12s, color .12s;
   }
-  .currency-toggle button.active { background: var(--surface-2); color: var(--gold); }
+  .currency-toggle button.active { background: var(--gold); color: var(--gold-ink); font-weight: 700; }
 
   .rate-bar {
     display: flex; align-items: center; gap: 10px; justify-content: flex-end;
-    font-size: 12px; color: var(--paper-dim); margin-bottom: 28px;
+    font-size: 12px; color: var(--paper-dim); margin-bottom: 24px;
   }
   .rate-bar input {
     width: 90px; background: var(--surface); border: 1px solid var(--line); color: var(--gold);
-    padding: 6px 8px; border-radius: var(--radius); font-family: inherit; font-size: 13px;
+    padding: 7px 8px; border-radius: var(--radius); font-family: inherit; font-size: 13px;
   }
+  .rate-bar input:focus { outline: none; border-color: var(--gold); }
 
-  .summary {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
-    background: var(--line); border: 1px solid var(--line); margin-bottom: 40px;
-  }
-  .summary .cell { background: var(--ink); padding: 18px 20px; }
-  .summary .label { font-size: 11px; color: var(--paper-dim); margin-bottom: 8px; }
-  .summary .value { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 500; font-variant-numeric: tabular-nums; }
-  .summary .pct { font-size: 12.5px; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; }
+  .summary .cell { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; }
+  .summary .label { font-size: 10.5px; color: var(--paper-dim); margin-bottom: 8px; }
+  .summary .value { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .summary .pct { font-size: 12px; margin-top: 4px; font-variant-numeric: tabular-nums; }
   .up { color: var(--gain); } .down { color: var(--loss); } .neutral { color: var(--paper-dim); }
 
   .sell-banner {
     border: 1px solid var(--line); border-left: 3px solid var(--gold);
     background: var(--surface); border-radius: var(--radius);
-    padding: 16px 20px; margin-bottom: 40px;
+    padding: 14px 18px; margin-bottom: 32px;
     display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
-    font-size: 14px;
+    font-size: 13px;
   }
-  .sell-banner .amt { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 500; }
-  .coin-sell {
-    font-size: 12px; color: var(--paper-dim); padding: 10px 18px;
-    border-top: 1px solid var(--line); background: rgba(255,255,255,0.015);
-  }
-  .coin-sell .amt { font-variant-numeric: tabular-nums; font-weight: 600; }
+  .sell-banner .amt { font-weight: 700; font-size: 17px; color: var(--paper); }
+  .coin-sell { font-size: 12px; color: var(--paper-dim); padding: 10px 18px; border-top: 1px solid var(--line); background: rgba(255,255,255,0.015); }
+  .coin-sell .amt { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--paper); }
+
+  .coin-sim { font-size: 12px; color: var(--paper-dim); padding: 10px 18px; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .coin-sim .sim-label { white-space: nowrap; }
+  .coin-sim input { width: 150px; background: var(--ink); border: 1px solid var(--line); color: var(--gold); padding: 6px 8px; border-radius: var(--radius); font-family: inherit; font-size: 12.5px; }
+  .coin-sim input:focus { outline: none; border-color: var(--gold); }
+  .coin-sim .sim-result { font-variant-numeric: tabular-nums; }
+  .coin-sim .amt { font-weight: 700; color: var(--paper); }
+
+  .breakeven { font-size: 12px; color: var(--paper-dim); padding: 10px 18px; border-top: 1px solid var(--line); }
+  .breakeven .amt { color: var(--gold); font-weight: 700; font-variant-numeric: tabular-nums; }
 
   .coin-search { margin-bottom: 16px; display: flex; gap: 10px; }
-  .coin-search input {
-    flex: 1; background: var(--surface); border: 1px solid var(--line); color: var(--paper);
-    padding: 11px 14px; border-radius: var(--radius); font-family: inherit; font-size: 13.5px;
-  }
+  .coin-search input { flex: 1; background: var(--surface); border: 1px solid var(--line); color: var(--paper); padding: 11px 14px; border-radius: var(--radius); font-family: inherit; font-size: 13px; }
   .coin-search input:focus { outline: none; border-color: var(--gold); }
   .coin-search input::placeholder { color: var(--paper-dim); }
   #updateAllBtn { height: auto; }
-  #sortSelect {
-    background: var(--surface); border: 1px solid var(--line); color: var(--paper-dim);
-    padding: 0 10px; border-radius: var(--radius); font-family: inherit; font-size: 12.5px;
-  }
-  #sortSelect:focus { outline: none; border-color: var(--gold); }
+  #sortSelect, #salesMonthFilter { background: var(--surface); border: 1px solid var(--line); color: var(--paper-dim); padding: 0 10px; border-radius: var(--radius); font-family: inherit; font-size: 12px; }
+  #sortSelect:focus, #salesMonthFilter:focus { outline: none; border-color: var(--gold); }
 
-  .add-form { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; margin-bottom: 40px; }
-  .add-form .title { font-family: 'Fraunces', serif; font-size: 16px; margin-bottom: 16px; color: var(--gold); }
-  .form-grid {
-    display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr auto; gap: 10px; align-items: end;
+  /* ---- Tabs ---- */
+  .tabs-wrap { margin-bottom: 32px; }
+  .tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); }
+  .tab-btn {
+    background: var(--surface); border: 1px solid var(--line); border-bottom: none;
+    color: var(--paper-dim); font-family: inherit; font-size: 12.5px; font-weight: 600;
+    padding: 11px 18px; cursor: pointer; border-radius: var(--radius) var(--radius) 0 0;
+    margin-bottom: -1px; transition: color .12s, background .12s;
   }
-  @media (max-width: 860px) { .form-grid { grid-template-columns: 1fr 1fr; } }
-  .field label { display: block; font-size: 10.5px; color: var(--paper-dim); margin-bottom: 6px; }
+  .tab-btn:hover { color: var(--paper); }
+  .tab-btn.active { color: var(--gold); background: var(--surface-2); border-color: var(--gold) var(--line) var(--surface-2); }
+  .tab-panels { background: var(--surface-2); border: 1px solid var(--line); border-top: none; border-radius: 0 0 var(--radius) var(--radius); padding: 20px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .tab-panel.sell-panel .btn-primary { background: var(--loss); color: #2a0f0c; }
+  .tab-panel.sell-panel .btn-primary:hover { filter: brightness(1.1); }
+
+  .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: end; }
+  .form-grid .btn-row { grid-column: 1 / -1; }
+  @media (max-width: 700px) { .form-grid { grid-template-columns: 1fr 1fr; } }
+  .field label { display: block; font-size: 10px; color: var(--paper-dim); margin-bottom: 6px; }
   .field input {
     width: 100%; background: var(--ink); border: 1px solid var(--line); color: var(--paper);
-    padding: 9px 10px; border-radius: var(--radius); font-family: inherit; font-size: 13.5px;
+    padding: 9px 10px; border-radius: var(--radius); font-family: inherit; font-size: 13px;
   }
   .field input:focus { outline: none; border-color: var(--gold); }
+  /* deixa o ícone do calendário combinar com o tema escuro/dourado */
+  .field input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(70%) sepia(44%) saturate(474%) hue-rotate(358deg) brightness(95%) contrast(92%);
+    cursor: pointer;
+  }
   #importText {
     width: 100%; background: var(--ink); border: 1px solid var(--line); color: var(--paper);
     padding: 12px; border-radius: var(--radius); font-family: inherit; font-size: 12.5px;
@@ -116,45 +138,114 @@
   #importFeedback .err { color: var(--loss); }
   #importFeedback ul { margin: 6px 0 0; padding-left: 18px; color: var(--paper-dim); }
   .computed-qty { font-size: 11.5px; color: var(--gold); margin-top: 10px; min-height: 16px; }
+
   .btn {
-    background: var(--gold); color: var(--ink); border: none; padding: 9px 18px; border-radius: var(--radius);
-    font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; height: 38px;
+    background: transparent; color: var(--paper); border: 1px solid var(--line); padding: 9px 18px; border-radius: var(--radius);
+    font-family: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap; height: 38px;
+    transition: filter .12s, background .12s, border-color .12s;
   }
-  .btn:hover { filter: brightness(1.08); }
+  .btn-primary { background: var(--gold); color: var(--gold-ink); border-color: var(--gold); font-weight: 700; }
+  .btn-primary:hover { filter: brightness(1.08); }
   .btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--paper-dim); }
   .btn-ghost:hover { color: var(--paper); border-color: var(--paper-dim); }
   .error-msg { color: var(--loss); font-size: 12px; margin-top: 10px; }
 
-  .coin-group { border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 20px; overflow: hidden; }
-  .coin-header {
-    display: flex; align-items: center; justify-content: space-between; background: var(--surface);
-    padding: 14px 18px; gap: 16px; flex-wrap: wrap;
-  }
-  .coin-name { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 500; }
+  .coin-group { border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 16px; overflow: hidden; background: var(--surface); }
+  .coin-header { display: flex; align-items: center; justify-content: space-between; background: var(--surface-2); padding: 14px 18px; gap: 16px; flex-wrap: wrap; }
+  .coin-name-wrap { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .coin-name { font-size: 17px; font-weight: 700; color: var(--paper); }
+  .coin-pm { font-size: 11px; color: var(--paper-dim); }
+  .coin-pm .amt { color: var(--gold); font-weight: 700; }
+  .coin-zeroed-badge { font-size: 10px; color: var(--paper-dim); border: 1px solid var(--line); border-radius: var(--radius); padding: 3px 7px; white-space: nowrap; }
   .coin-header .price-edit { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--paper-dim); }
-  .coin-header .price-edit input {
-    width: 110px; background: var(--ink); border: 1px solid var(--line); color: var(--gold);
-    padding: 6px 8px; border-radius: var(--radius); font-family: inherit; font-size: 13px;
-  }
+  .coin-header .price-edit input { width: 110px; background: var(--ink); border: 1px solid var(--line); color: var(--gold); padding: 6px 8px; border-radius: var(--radius); font-family: inherit; font-size: 13px; }
   .fetch-btn { height: auto; padding: 5px 10px; font-size: 11px; }
-  .coin-summary { display: flex; gap: 24px; font-size: 12.5px; flex-wrap: wrap; }
-  .coin-summary .amt { font-variant-numeric: tabular-nums; }
+  .coin-summary { display: flex; gap: 8px 22px; font-size: 12px; flex-wrap: wrap; width: 100%; color: var(--paper-dim); }
+  .coin-summary .amt { font-variant-numeric: tabular-nums; color: var(--paper); }
   table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  thead th { text-align: left; font-weight: 400; color: var(--paper-dim); font-size: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  thead th { text-align: left; font-weight: 500; color: var(--paper-dim); font-size: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
   thead th.num, td.num { text-align: right; }
   tbody td { padding: 12px 14px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; white-space: nowrap; }
   tbody tr:last-child td { border-bottom: none; }
-  tbody tr:hover { background: rgba(255,255,255,0.02); }
+  tbody tr:hover { background: rgba(201,161,90,0.04); }
   .del-btn { background: none; border: none; color: var(--paper-dim); cursor: pointer; font-family: inherit; font-size: 12px; padding: 4px 6px; }
   .del-btn:hover { color: var(--loss); }
   .overflow-x { overflow-x: auto; }
+  .table-caption { font-size: 10.5px; color: var(--paper-dim); padding: 10px 18px 0; }
 
-  .empty { text-align: center; padding: 60px 20px; color: var(--paper-dim); border: 1px dashed var(--line); border-radius: var(--radius); font-size: 13px; }
-  .empty .big { font-family: 'Fraunces', serif; font-size: 18px; color: var(--paper); margin-bottom: 8px; }
+  .empty { text-align: center; padding: 48px 20px; color: var(--paper-dim); border: 1px dashed var(--line); border-radius: var(--radius); font-size: 13px; }
+  .empty .big { font-size: 15px; color: var(--paper); margin-bottom: 8px; font-weight: 700; }
+  .empty.small { padding: 22px 16px; font-size: 12px; margin-bottom: 16px; }
 
-  footer {
-    margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 11px; color: var(--paper-dim);
-    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  .section-title { font-size: 16px; font-weight: 700; color: var(--gold); margin: 36px 0 6px; border-top: 1px solid var(--line); padding-top: 24px; }
+  .section-sub { font-size: 11px; color: var(--paper-dim); margin-bottom: 16px; line-height: 1.6; }
+  .sales-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+  .sales-period-total { font-size: 12.5px; color: var(--paper-dim); }
+  .sales-period-total .amt { font-weight: 700; }
+
+  footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 11px; color: var(--paper-dim); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  footer .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* ===================== RESPONSIVE / MOBILE ===================== */
+  @media (max-width: 600px) {
+    .wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-top: 28px; padding-bottom: 56px; }
+    header { flex-direction: column; align-items: stretch; gap: 14px; padding-bottom: 16px; margin-bottom: 22px; }
+    h1 { font-size: 19px; line-height: 1.3; }
+    .sub { font-size: 11px; }
+    .currency-toggle { align-self: stretch; }
+    .currency-toggle button { flex: 1; padding: 10px 8px; min-height: 40px; }
+    .rate-bar { flex-direction: column; align-items: stretch; gap: 6px; justify-content: flex-start; margin-bottom: 18px; }
+    .rate-bar input { width: 100%; min-height: 42px; font-size: 14px; }
+    .summary { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .summary .cell { padding: 14px 14px; }
+    .summary .value { font-size: 16px; }
+    .sell-banner { flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px 16px; margin-bottom: 22px; font-size: 12.5px; }
+    .sell-banner .amt { font-size: 16px; }
+    .tabs { flex-wrap: wrap; }
+    .tab-btn { flex: 1; text-align: center; padding: 10px 8px; font-size: 11px; }
+    .tab-panels { padding: 16px; }
+    .form-grid { grid-template-columns: 1fr; gap: 12px; }
+    .field input { min-height: 42px; font-size: 16px; padding: 10px 12px; }
+    .form-grid .btn { width: 100%; min-height: 44px; }
+    #importText { font-size: 13px; }
+    #importBtn, #importExampleBtn { width: 100%; min-height: 44px; }
+    .import-actions { flex-direction: column; }
+    .coin-search { flex-direction: column; align-items: stretch; }
+    .coin-search input, #sortSelect, #updateAllBtn { width: 100%; min-height: 44px; font-size: 14px; }
+    .coin-header { padding: 12px 14px; gap: 10px; }
+    .coin-name { font-size: 15px; }
+    .coin-summary { gap: 8px 16px; font-size: 11.5px; width: 100%; }
+    .coin-header .price-edit { width: 100%; }
+    .coin-header .price-edit input { flex: 1; min-width: 0; min-height: 40px; }
+    .fetch-btn { min-height: 40px; padding: 8px 12px; }
+    table { font-size: 11.5px; }
+    thead th { padding: 8px 10px; font-size: 9.5px; }
+    tbody td { padding: 10px 10px; }
+    .overflow-x { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; border-bottom: 1px solid var(--line); }
+    .coin-sell, .coin-sim, .breakeven { padding: 10px 14px; font-size: 11.5px; }
+    .coin-sim { flex-direction: column; align-items: stretch; }
+    .coin-sim input { width: 100%; min-height: 40px; }
+    .section-title { font-size: 14px; margin-top: 26px; padding-top: 18px; }
+    .sales-toolbar { flex-direction: column; align-items: stretch; }
+    #salesMonthFilter { width: 100%; min-height: 42px; }
+    footer { flex-direction: column; align-items: stretch; gap: 12px; }
+    footer > div { width: 100%; }
+    footer .btn { flex: 1; min-height: 42px; }
+    .empty { padding: 36px 16px; }
+  }
+  @media (max-width: 400px) {
+    .wrap { padding-left: 12px; padding-right: 12px; }
+    h1 { font-size: 17px; }
+    .summary { grid-template-columns: 1fr 1fr; }
+    .summary .value { font-size: 15px; }
+    .sell-banner .amt { font-size: 15px; }
+    .coin-name { font-size: 14px; }
+    table { font-size: 11px; }
+    thead th { padding: 7px 8px; }
+    tbody td { padding: 9px 8px; }
+    .btn { font-size: 11.5px; padding: 9px 12px; }
+    footer > div { flex-direction: column; }
+    footer .btn { width: 100%; }
   }
 </style>
 </head>
@@ -179,50 +270,96 @@
   <div class="summary" id="summary"></div>
   <div class="sell-banner" id="sellBanner"></div>
 
-  <div class="add-form">
-    <div class="title">Nova compra</div>
-    <div class="form-grid">
-      <div class="field">
-        <label for="f-coin">Moeda (ex: BTC)</label>
-        <input id="f-coin" type="text" placeholder="BTC" autocomplete="off">
-      </div>
-      <div class="field">
-        <label for="f-usdt">USDT gasto</label>
-        <input id="f-usdt" type="number" step="any" placeholder="500">
-      </div>
-      <div class="field">
-        <label for="f-price">Preço da moeda (USDT)</label>
-        <input id="f-price" type="number" step="any" placeholder="67000">
-      </div>
-      <div class="field">
-        <label for="f-rate">Cotação do dólar na compra</label>
-        <input id="f-rate" type="number" step="any" placeholder="5.30">
-      </div>
-      <div class="field">
-        <label for="f-date">Data</label>
-        <input id="f-date" type="date">
-      </div>
-      <button class="btn" id="addBtn">Adicionar</button>
+  <div class="tabs-wrap">
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="buy" type="button">+ Nova Compra</button>
+      <button class="tab-btn" data-tab="import" type="button">📥 Importar Tabela</button>
+      <button class="tab-btn" data-tab="sell" type="button">💸 Registrar Venda</button>
     </div>
-    <div class="computed-qty" id="computedQty"></div>
-    <div class="error-msg" id="errorMsg"></div>
-  </div>
+    <div class="tab-panels">
 
-  <div class="add-form" id="importForm">
-    <div class="title">Importar várias compras (tabela)</div>
-    <div class="sub" style="margin-bottom:14px;">
-      Cole linhas no formato: <strong>moeda&nbsp;&nbsp;usdt gasto&nbsp;&nbsp;preço&nbsp;&nbsp;câmbio (opcional)&nbsp;&nbsp;data (opcional, AAAA-MM-DD)</strong><br>
-      Funciona colando direto do Excel/Google Sheets (colunas separadas por tab), ou com vírgula entre os valores. Uma compra por linha.
-    </div>
-    <textarea id="importText" rows="6" placeholder="BTC	500	350000	5.30	2026-03-10
+      <div class="tab-panel active" data-panel="buy">
+        <div class="form-grid">
+          <div class="field">
+            <label for="f-coin">Moeda (ex: BTC)</label>
+            <input id="f-coin" type="text" placeholder="BTC" autocomplete="off" list="coinDatalist">
+          </div>
+          <div class="field">
+            <label for="f-usdt">USDT gasto</label>
+            <input id="f-usdt" type="number" step="any" placeholder="500">
+          </div>
+          <div class="field">
+            <label for="f-price">Preço da moeda (USDT)</label>
+            <input id="f-price" type="number" step="any" placeholder="67000">
+          </div>
+          <div class="field">
+            <label for="f-fee">Taxa (USDT) — opcional</label>
+            <input id="f-fee" type="number" step="any" placeholder="0.50">
+          </div>
+          <div class="field">
+            <label for="f-rate">Cotação do dólar na compra</label>
+            <input id="f-rate" type="number" step="any" placeholder="5.30">
+          </div>
+          <div class="field">
+            <label for="f-date">Data</label>
+            <input id="f-date" type="date">
+          </div>
+          <div class="btn-row"><button class="btn btn-primary" id="addBtn">Adicionar compra</button></div>
+        </div>
+        <div class="computed-qty" id="computedQty"></div>
+        <div class="error-msg" id="errorMsg"></div>
+      </div>
+
+      <div class="tab-panel" data-panel="import">
+        <div class="sub" style="margin-bottom:14px;">
+          Cole linhas no formato: <strong>moeda&nbsp;&nbsp;usdt gasto&nbsp;&nbsp;preço&nbsp;&nbsp;câmbio (opcional)&nbsp;&nbsp;data (opcional, AAAA-MM-DD)</strong><br>
+          Funciona colando direto do Excel/Google Sheets (colunas separadas por tab), ou com vírgula entre os valores. Uma compra por linha.
+        </div>
+        <textarea id="importText" rows="6" placeholder="BTC	500	350000	5.30	2026-03-10
 ETH	300	18500		2026-05-02
 PEPE	100	0.0000098"></textarea>
-    <div style="display:flex; gap:10px; margin-top:12px;">
-      <button class="btn" id="importBtn">Importar</button>
-      <button class="btn btn-ghost" id="importExampleBtn" type="button">preencher exemplo</button>
+        <div class="import-actions" style="display:flex; gap:10px; margin-top:12px;">
+          <button class="btn btn-primary" id="importBtn">Importar</button>
+          <button class="btn btn-ghost" id="importExampleBtn" type="button">preencher exemplo</button>
+        </div>
+        <div id="importFeedback" style="margin-top:12px; font-size:12px;"></div>
+      </div>
+
+      <div class="tab-panel sell-panel" data-panel="sell">
+        <div class="form-grid">
+          <div class="field">
+            <label for="s-coin">Moeda (ex: BTC)</label>
+            <input id="s-coin" type="text" placeholder="BTC" autocomplete="off" list="coinDatalist">
+          </div>
+          <div class="field">
+            <label for="s-qty">Quantidade vendida</label>
+            <input id="s-qty" type="number" step="any" placeholder="0.01">
+          </div>
+          <div class="field">
+            <label for="s-price">Preço de venda (USDT)</label>
+            <input id="s-price" type="number" step="any" placeholder="70000">
+          </div>
+          <div class="field">
+            <label for="s-fee">Taxa (USDT) — opcional</label>
+            <input id="s-fee" type="number" step="any" placeholder="0.50">
+          </div>
+          <div class="field">
+            <label for="s-rate">Cotação do dólar na venda</label>
+            <input id="s-rate" type="number" step="any" placeholder="5.30">
+          </div>
+          <div class="field">
+            <label for="s-date">Data</label>
+            <input id="s-date" type="date">
+          </div>
+          <div class="btn-row"><button class="btn btn-primary" id="sellBtn">Registrar venda</button></div>
+        </div>
+        <div class="computed-qty" id="sellAvailable"></div>
+        <div class="error-msg" id="sellErrorMsg"></div>
+      </div>
+
     </div>
-    <div id="importFeedback" style="margin-top:12px; font-size:12px;"></div>
   </div>
+  <datalist id="coinDatalist"></datalist>
 
   <div class="coin-search">
     <input type="text" id="coinSearch" placeholder="buscar moeda (ex: BTC, PEPE)...">
@@ -234,9 +371,18 @@ PEPE	100	0.0000098"></textarea>
   </div>
   <div id="coinGroups"></div>
 
+  <div class="section-title">Histórico de vendas</div>
+  <div class="section-sub">O custo de cada venda usa o preço médio (PM) atual da moeda, já incluindo as taxas de compra. Se você cadastrar uma compra nova depois, o PM muda e o lucro realizado aqui é recalculado automaticamente.</div>
+  <div class="sales-toolbar">
+    <select id="salesMonthFilter"><option value="">todos os períodos</option></select>
+    <div class="sales-period-total" id="salesPeriodTotal"></div>
+  </div>
+  <div id="salesHistory"></div>
+
   <footer>
     <span>dados salvos apenas neste navegador</span>
-    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="exportCsvBtn">exportar CSV</button>
       <button class="btn btn-ghost" id="exportBtn">baixar backup</button>
       <button class="btn btn-ghost" id="importBackupBtn">carregar backup</button>
       <input type="file" id="importBackupFile" accept="application/json" style="display:none;">
@@ -248,22 +394,31 @@ PEPE	100	0.0000098"></textarea>
 <script>
 (function(){
   const STORAGE_KEY = 'crypto-tracker-purchases-v2';
+  const SALES_KEY = 'crypto-tracker-sales-v1';
   const CUR_KEY = 'crypto-tracker-currency-v2';
   const RATE_KEY = 'crypto-tracker-current-rate-v2';
+  const SORT_KEY = 'crypto-tracker-sort-v1';
+
   let purchases = [];
+  let sales = [];
   let currency = 'USDT';
   let currentDollarRate = null;
   let searchTerm = '';
   let sortMode = 'alpha';
+  let simPrices = {};
+  let salesMonthFilter = '';
 
   function load(){
     try { const raw = localStorage.getItem(STORAGE_KEY); purchases = raw ? JSON.parse(raw) : []; } catch(e){ purchases = []; }
+    try { const raw = localStorage.getItem(SALES_KEY); sales = raw ? JSON.parse(raw) : []; } catch(e){ sales = []; }
     try { const cur = localStorage.getItem(CUR_KEY); if (cur === 'USD' || cur === 'BRL' || cur === 'USDT') currency = (cur==='USD'?'USDT':cur); } catch(e){}
     try { const r = localStorage.getItem(RATE_KEY); if (r) currentDollarRate = parseFloat(r); } catch(e){}
   }
   function save(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(purchases)); } catch(e){} }
+  function saveSales(){ try { localStorage.setItem(SALES_KEY, JSON.stringify(sales)); } catch(e){} }
   function saveCurrency(){ try { localStorage.setItem(CUR_KEY, currency); } catch(e){} }
   function saveRate(){ try { localStorage.setItem(RATE_KEY, String(currentDollarRate ?? '')); } catch(e){} }
+  function saveSort(){ try { localStorage.setItem(SORT_KEY, sortMode); } catch(e){} }
 
   function fmtNum(v, symbol){
     if (!isFinite(v)) v = 0;
@@ -272,6 +427,17 @@ PEPE	100	0.0000098"></textarea>
     return (v < 0 ? '-' : '') + symbol + ' ' + formatted;
   }
   function fmtMoney(v){ return fmtNum(v, currency === 'BRL' ? 'R$' : 'USDT'); }
+  // Formata PREÇOS UNITÁRIOS: decimais adaptativos, pra não sumir com moedas de valor
+  // muito baixo (PEPE, SHIB...). Nunca arredonda o valor em si, só a exibição.
+  function fmtPrice(v, symbol){
+    if (!isFinite(v)) v = 0;
+    const abs = Math.abs(v);
+    let maxDec = 2;
+    if (abs > 0 && abs < 0.01) maxDec = 8;
+    else if (abs > 0 && abs < 1) maxDec = 6;
+    const formatted = abs.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: maxDec});
+    return (v < 0 ? '-' : '') + symbol + ' ' + formatted;
+  }
   function fmtPct(v){
     if (!isFinite(v)) return '—';
     const s = v.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
@@ -280,106 +446,180 @@ PEPE	100	0.0000098"></textarea>
   function fmtQty(v){ return Number(v).toLocaleString('pt-BR', {maximumFractionDigits: 8}); }
   function cls(v){ return v > 0 ? 'up' : (v < 0 ? 'down' : 'neutral'); }
   function uid(){ return Math.random().toString(36).slice(2, 10); }
+  function toDisplay(usdtValue, rate){
+    if (currency === 'USDT') return usdtValue;
+    return usdtValue * (rate || currentDollarRate || 0);
+  }
+  function resultPhrase(gain, positive, negative, neutral){
+    if (gain === 0) return neutral;
+    return (gain > 0 ? positive : negative) + ' ' + fmtMoney(Math.abs(gain));
+  }
+  function monthLabel(m){
+    const names = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+    const parts = m.split('-');
+    const mo = parseInt(parts[1], 10);
+    return (names[mo-1] || m) + '/' + parts[0];
+  }
+  function csvCell(v){
+    const str = String(v === null || v === undefined ? '' : v);
+    return /[",;\n]/.test(str) ? '"' + str.replace(/"/g,'""') + '"' : str;
+  }
+  function downloadBlob(blob, filename){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
 
-  // Converte um valor em USDT para a moeda de exibição atual
-  function investedDisplay(p){
-    if (currency === 'USDT') return p.usdtSpent;
-    const rate = p.dollarRate || currentDollarRate || 0;
-    return p.usdtSpent * rate;
-  }
-  function currentValueDisplay(p){
-    const cp = p.currentPrice ?? p.price;
-    const usdtVal = p.qty * cp;
-    if (currency === 'USDT') return usdtVal;
-    const rate = currentDollarRate || p.dollarRate || 0;
-    return usdtVal * rate;
+  // Reúne tudo que precisamos calcular para uma moeda: PM (já incluindo taxas de
+  // compra), saldo restante, break-even, resultado não realizado e realizado.
+  function computeCoinStats(coin){
+    const coinPurchases = purchases.filter(p => p.coin === coin).sort((a,b) => (b.date||'').localeCompare(a.date||''));
+    const coinSales = sales.filter(s => s.coin === coin).sort((a,b) => (b.date||'').localeCompare(a.date||''));
+
+    const qtyBought = coinPurchases.reduce((s,p) => s + p.qty, 0);
+    const usdtSpentTotal = coinPurchases.reduce((s,p) => s + p.usdtSpent, 0);
+    const buyFeesTotal = coinPurchases.reduce((s,p) => s + (p.fee || 0), 0);
+    // Preço Médio (PM): custo total (incluindo taxas de compra) / quantidade total.
+    const avgPrice = qtyBought > 0 ? (usdtSpentTotal + buyFeesTotal) / qtyBought : 0;
+    const breakEvenPrice = avgPrice; // preço mínimo de venda para empatar (já com taxas de compra embutidas)
+
+    const ratedPurchases = coinPurchases.filter(p => p.dollarRate);
+    const ratedSpent = ratedPurchases.reduce((s,p) => s + p.usdtSpent, 0);
+    const avgBuyRate = ratedSpent > 0 ? ratedPurchases.reduce((s,p) => s + p.usdtSpent*p.dollarRate, 0) / ratedSpent : null;
+
+    const qtySold = coinSales.reduce((s,x) => s + x.qty, 0);
+    const qtyRemaining = Math.max(0, qtyBought - qtySold);
+    const currentPrice = coinPurchases.length ? (coinPurchases[0].currentPrice ?? coinPurchases[0].price) : 0;
+
+    const costRemainingUSDT = qtyRemaining * avgPrice;
+    const valueRemainingUSDT = qtyRemaining * currentPrice;
+    const unrealizedUSDT = valueRemainingUSDT - costRemainingUSDT;
+
+    let realizedUSDT = 0;
+    const saleDetails = coinSales.map(s => {
+      const costUSDT = s.qty * avgPrice;
+      const receivedUSDT = (s.qty * s.sellPrice) - (s.fee || 0);
+      const gainUSDT = receivedUSDT - costUSDT;
+      realizedUSDT += gainUSDT;
+      const costDisplay = toDisplay(costUSDT, avgBuyRate);
+      const receivedDisplay = toDisplay(receivedUSDT, s.dollarRate);
+      const gainDisplay = receivedDisplay - costDisplay;
+      const pct = costDisplay > 0 ? (gainDisplay / costDisplay) * 100 : 0;
+      return { ...s, costUSDT, receivedUSDT, gainUSDT, costDisplay, receivedDisplay, gainDisplay, pct };
+    });
+
+    const investedRemainingDisplay = toDisplay(costRemainingUSDT, avgBuyRate);
+    const valueRemainingDisplay = toDisplay(valueRemainingUSDT, currentDollarRate);
+    const unrealizedDisplay = valueRemainingDisplay - investedRemainingDisplay;
+    const unrealizedPct = investedRemainingDisplay > 0 ? (unrealizedDisplay / investedRemainingDisplay) * 100 : 0;
+    const realizedDisplay = saleDetails.reduce((s,d) => s + d.gainDisplay, 0);
+
+    return {
+      coin, coinPurchases, coinSales, qtyBought, usdtSpentTotal, avgPrice, avgBuyRate, breakEvenPrice,
+      qtySold, qtyRemaining, currentPrice, costRemainingUSDT, valueRemainingUSDT, unrealizedUSDT,
+      investedRemainingDisplay, valueRemainingDisplay, unrealizedDisplay, unrealizedPct,
+      saleDetails, realizedDisplay
+    };
   }
 
-  function coinList(){
-    const map = {};
-    purchases.forEach(p => { if (!map[p.coin]) map[p.coin] = []; map[p.coin].push(p); });
-    return map;
-  }
+  // ---- Sistema de abas ----
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelector('.tab-panel[data-panel="' + btn.dataset.tab + '"]').classList.add('active');
+    });
+  });
 
   function render(){
     document.querySelectorAll('.currency-toggle button').forEach(b=>{
       b.classList.toggle('active', b.dataset.cur === currency);
     });
     const rateInput = document.getElementById('currentDollarRate');
-    if (document.activeElement !== rateInput) {
-      rateInput.value = currentDollarRate ?? '';
-    }
+    if (document.activeElement !== rateInput) { rateInput.value = currentDollarRate ?? ''; }
 
-    const groups = coinList();
-    let coins = Object.keys(groups);
+    const coinsWithPurchases = Array.from(new Set(purchases.map(p => p.coin)));
+    document.getElementById('coinDatalist').innerHTML = coinsWithPurchases.map(c => '<option value="' + c + '">').join('');
+
+    let coins = coinsWithPurchases.slice();
     if (sortMode === 'usdt') {
       const usdtTotals = {};
-      coins.forEach(c => { usdtTotals[c] = groups[c].reduce((sum, p) => sum + p.usdtSpent, 0); });
+      coins.forEach(c => { usdtTotals[c] = purchases.filter(p=>p.coin===c).reduce((sum,p) => sum + p.usdtSpent, 0); });
       coins.sort((a, b) => usdtTotals[b] - usdtTotals[a]);
     } else {
       coins.sort();
     }
 
-    let totalInvested = 0, totalCurrent = 0;
-    coins.forEach(coin => {
-      groups[coin].forEach(p => {
-        totalInvested += investedDisplay(p);
-        totalCurrent += currentValueDisplay(p);
-      });
+    const allStats = {};
+    coins.forEach(c => { allStats[c] = computeCoinStats(c); });
+
+    let totalInvestedRemaining = 0, totalValueRemaining = 0, totalRealized = 0;
+    coins.forEach(c => {
+      totalInvestedRemaining += allStats[c].investedRemainingDisplay;
+      totalValueRemaining += allStats[c].valueRemainingDisplay;
+      totalRealized += allStats[c].realizedDisplay;
     });
-    const totalGain = totalCurrent - totalInvested;
-    const totalPct = totalInvested > 0 ? (totalGain / totalInvested) * 100 : 0;
+    const totalUnrealized = totalValueRemaining - totalInvestedRemaining;
+    const totalUnrealizedPct = totalInvestedRemaining > 0 ? (totalUnrealized / totalInvestedRemaining) * 100 : 0;
 
     document.getElementById('summary').innerHTML = `
-      <div class="cell"><div class="label">investido</div><div class="value">${fmtMoney(totalInvested)}</div></div>
-      <div class="cell"><div class="label">valor atual</div><div class="value">${fmtMoney(totalCurrent)}</div></div>
+      <div class="cell"><div class="label">custo em carteira</div><div class="value">${fmtMoney(totalInvestedRemaining)}</div></div>
+      <div class="cell"><div class="label">valor atual</div><div class="value">${fmtMoney(totalValueRemaining)}</div></div>
       <div class="cell">
-        <div class="label">resultado</div>
-        <div class="value ${cls(totalGain)}">${fmtMoney(totalGain)}</div>
-        <div class="pct ${cls(totalGain)}">${fmtPct(totalPct)}</div>
+        <div class="label">não realizado</div>
+        <div class="value ${cls(totalUnrealized)}">${fmtMoney(totalUnrealized)}</div>
+        <div class="pct ${cls(totalUnrealized)}">${fmtPct(totalUnrealizedPct)}</div>
+      </div>
+      <div class="cell">
+        <div class="label">lucro realizado</div>
+        <div class="value ${cls(totalRealized)}">${fmtMoney(totalRealized)}</div>
       </div>
     `;
 
-    const sellVerb = totalGain > 0 ? 'lucro de' : (totalGain < 0 ? 'prejuízo de' : 'sem lucro nem prejuízo,');
     document.getElementById('sellBanner').innerHTML = coins.length === 0 ? '' : `
-      se vender tudo hoje, você retira <span class="amt">${fmtMoney(totalCurrent)}</span> —
-      <span class="${cls(totalGain)}">${totalGain === 0 ? sellVerb : sellVerb + ' ' + fmtMoney(Math.abs(totalGain)) + ' (' + fmtPct(totalPct) + ')'}</span>
+      se vender tudo que ainda tem hoje, você retira <span class="amt">${fmtMoney(totalValueRemaining)}</span> —
+      <span class="${cls(totalUnrealized)}">${resultPhrase(totalUnrealized, 'lucro de', 'prejuízo de', 'sem lucro nem prejuízo')}${totalUnrealized !== 0 ? ' (' + fmtPct(totalUnrealizedPct) + ')' : ''}</span>
+      ${totalRealized !== 0 ? ' &nbsp;•&nbsp; fora isso, já tem <span class="' + cls(totalRealized) + '">' + fmtMoney(Math.abs(totalRealized)) + (totalRealized > 0 ? ' de lucro' : ' de prejuízo') + '</span> realizado' : ''}
     `;
 
     const container = document.getElementById('coinGroups');
     if (coins.length === 0) {
       container.innerHTML = `<div class="empty"><div class="big">nenhuma compra registrada</div>cadastre sua primeira compra acima para começar a acompanhar</div>`;
+      renderSalesHistory({});
       return;
     }
 
-    const visibleCoins = searchTerm
-      ? coins.filter(c => c.includes(searchTerm.toUpperCase()))
-      : coins;
+    const visibleCoins = searchTerm ? coins.filter(c => c.includes(searchTerm.toUpperCase())) : coins;
 
     if (visibleCoins.length === 0) {
       container.innerHTML = `<div class="empty">nenhuma moeda encontrada para "${searchTerm}"</div>`;
+      renderSalesHistory(allStats);
       return;
     }
 
     const showRateCol = currency === 'BRL';
 
     container.innerHTML = visibleCoins.map(coin => {
-      const rows = groups[coin].slice().sort((a,b) => (b.date||'').localeCompare(a.date||''));
-      const currentPrice = rows[0].currentPrice ?? rows[0].price;
-      let coinInvested = 0, coinCurrent = 0;
+      const st = allStats[coin];
+      const rows = st.coinPurchases;
+      const zeroed = st.qtyRemaining <= 0;
+      const hasFeeCol = rows.some(p => p.fee);
+
       const rowsHtml = rows.map(p => {
-        const invested = investedDisplay(p);
-        const curVal = currentValueDisplay(p);
+        const invested = toDisplay(p.usdtSpent + (p.fee||0), p.dollarRate);
+        const curVal = toDisplay(p.qty * (p.currentPrice ?? p.price), currentDollarRate);
         const gain = curVal - invested;
         const pct = invested > 0 ? (gain/invested)*100 : 0;
-        coinInvested += invested;
-        coinCurrent += curVal;
         return `
           <tr data-id="${p.id}">
             <td>${p.date || '—'}</td>
             <td class="num">${fmtNum(p.usdtSpent, 'USDT')}</td>
-            <td class="num">${fmtNum(p.price, 'USDT')}</td>
+            <td class="num">${fmtPrice(p.price, 'USDT')}</td>
             <td class="num">${fmtQty(p.qty)}</td>
+            ${hasFeeCol ? `<td class="num">${p.fee ? fmtNum(p.fee, 'USDT') : '—'}</td>` : ''}
             ${showRateCol ? `<td class="num">${p.dollarRate ? p.dollarRate.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}</td>` : ''}
             <td class="num">${fmtMoney(invested)}</td>
             <td class="num">${fmtMoney(curVal)}</td>
@@ -389,23 +629,44 @@ PEPE	100	0.0000098"></textarea>
           </tr>
         `;
       }).join('');
-      const coinGain = coinCurrent - coinInvested;
-      const coinPct = coinInvested > 0 ? (coinGain/coinInvested)*100 : 0;
+
+      const simPrice = simPrices[coin] !== undefined ? simPrices[coin] : st.currentPrice;
+      let simHtml = '';
+      if (!zeroed && isFinite(simPrice) && simPrice > 0) {
+        const simValueUSDT = st.qtyRemaining * simPrice;
+        const simValueDisplay = toDisplay(simValueUSDT, currentDollarRate);
+        const simGain = simValueDisplay - st.investedRemainingDisplay;
+        const simPct = st.investedRemainingDisplay > 0 ? (simGain / st.investedRemainingDisplay) * 100 : 0;
+        simHtml = `
+          com ${coin} a ${fmtPrice(simPrice, 'USDT')}, você teria <span class="amt">${fmtMoney(simValueDisplay)}</span> —
+          <span class="${cls(simGain)}">${resultPhrase(simGain, 'lucro de', 'prejuízo de', 'sem lucro nem prejuízo')}${simGain !== 0 ? ' (' + fmtPct(simPct) + ')' : ''}</span>
+        `;
+      }
 
       return `
         <div class="coin-group">
           <div class="coin-header">
-            <div class="coin-name">${coin}</div>
-            <div class="coin-summary">
-              <span>investido <span class="amt">${fmtMoney(coinInvested)}</span></span>
-              <span>resultado <span class="amt ${cls(coinGain)}">${fmtMoney(coinGain)} (${fmtPct(coinPct)})</span></span>
+            <div class="coin-name-wrap">
+              <div class="coin-name">${coin}</div>
+              <div class="coin-pm">PM <span class="amt">${fmtPrice(st.avgPrice, 'USDT')}</span></div>
+              ${zeroed ? '<div class="coin-zeroed-badge">posição zerada</div>' : ''}
             </div>
             <div class="price-edit">
               preço atual (USDT)
-              <input type="number" step="any" value="${currentPrice}" data-curprice="${coin}">
+              <input type="number" step="any" value="${st.currentPrice}" data-curprice="${coin}">
               <button class="btn btn-ghost fetch-btn" data-fetch="${coin}" type="button">buscar preço</button>
             </div>
+            <div class="coin-summary">
+              <span>restante <span class="amt">${fmtQty(st.qtyRemaining)} ${coin}</span></span>
+              <span>custo em carteira <span class="amt">${fmtMoney(st.investedRemainingDisplay)}</span></span>
+              <span>não realizado <span class="amt ${cls(st.unrealizedDisplay)}">${fmtMoney(st.unrealizedDisplay)} (${fmtPct(st.unrealizedPct)})</span></span>
+              <span>realizado <span class="amt ${cls(st.realizedDisplay)}">${fmtMoney(st.realizedDisplay)}</span></span>
+            </div>
           </div>
+          <div class="breakeven" title="Preço mínimo de venda (por unidade) pra não ter prejuízo, já considerando as taxas de compra pagas. Não inclui uma eventual taxa de venda futura.">
+            break-even: <span class="amt">${fmtPrice(st.breakEvenPrice, 'USDT')}</span> por ${coin}
+          </div>
+          <div class="table-caption">histórico de compras desta moeda (registro imutável)</div>
           <div class="overflow-x">
             <table>
               <thead>
@@ -414,6 +675,7 @@ PEPE	100	0.0000098"></textarea>
                   <th class="num">USDT gasto</th>
                   <th class="num">preço pago</th>
                   <th class="num">quantidade</th>
+                  ${hasFeeCol ? '<th class="num">taxa</th>' : ''}
                   ${showRateCol ? '<th class="num">câmbio na compra</th>' : ''}
                   <th class="num">investido</th>
                   <th class="num">valor atual</th>
@@ -426,9 +688,17 @@ PEPE	100	0.0000098"></textarea>
             </table>
           </div>
           <div class="coin-sell">
-            se vender ${coin} hoje: <span class="amt">${fmtMoney(coinCurrent)}</span> —
-            <span class="${cls(coinGain)}">${coinGain === 0 ? 'sem lucro nem prejuízo' : (coinGain > 0 ? 'lucro de ' : 'prejuízo de ') + fmtMoney(Math.abs(coinGain)) + ' (' + fmtPct(coinPct) + ')'}</span>
+            ${zeroed
+              ? 'toda a posição em ' + coin + ' já foi vendida — nada restando para vender hoje.'
+              : 'se vender ' + coin + ' hoje: <span class="amt">' + fmtMoney(st.valueRemainingDisplay) + '</span> — <span class="' + cls(st.unrealizedDisplay) + '">' + resultPhrase(st.unrealizedDisplay, 'lucro de', 'prejuízo de', 'sem lucro nem prejuízo') + (st.unrealizedDisplay !== 0 ? ' (' + fmtPct(st.unrealizedPct) + ')' : '') + '</span>'
+            }
           </div>
+          ${zeroed ? '' : `
+          <div class="coin-sim">
+            <span class="sim-label">simular preço do ${coin} (USDT)</span>
+            <input type="number" step="any" data-sim="${coin}" value="${simPrice}">
+            <span class="sim-result">${simHtml}</span>
+          </div>`}
         </div>
       `;
     }).join('');
@@ -451,7 +721,111 @@ PEPE	100	0.0000098"></textarea>
     container.querySelectorAll('[data-fetch]').forEach(btn => {
       btn.addEventListener('click', () => fetchPriceForButton(btn.dataset.fetch, btn));
     });
+    container.querySelectorAll('[data-sim]').forEach(inp => {
+      inp.addEventListener('input', () => {
+        const coin = inp.dataset.sim;
+        const val = inp.value;
+        if (val === '') { delete simPrices[coin]; } else { simPrices[coin] = parseFloat(val); }
+        const caret = inp.selectionStart;
+        render();
+        const newInp = document.querySelector('[data-sim="' + coin + '"]');
+        if (newInp) { newInp.focus(); newInp.setSelectionRange(caret, caret); }
+      });
+    });
+
+    renderSalesHistory(allStats);
   }
+
+  function renderSalesHistory(allStats){
+    const el = document.getElementById('salesHistory');
+    const allSaleDetails = [];
+    Object.keys(allStats).forEach(coin => {
+      allStats[coin].saleDetails.forEach(d => allSaleDetails.push(d));
+    });
+
+    // popula o filtro de mês/ano com base nas datas das vendas existentes
+    const monthSelect = document.getElementById('salesMonthFilter');
+    const months = Array.from(new Set(sales.map(s => (s.date||'').slice(0,7)).filter(Boolean))).sort().reverse();
+    monthSelect.innerHTML = '<option value="">todos os períodos</option>' + months.map(m => `<option value="${m}">${monthLabel(m)}</option>`).join('');
+    monthSelect.value = months.includes(salesMonthFilter) ? salesMonthFilter : '';
+    if (!months.includes(salesMonthFilter)) salesMonthFilter = '';
+
+    if (sales.length === 0) {
+      el.innerHTML = `<div class="empty small">nenhuma venda registrada ainda.</div>`;
+      document.getElementById('salesPeriodTotal').textContent = '';
+      return;
+    }
+
+    let filtered = allSaleDetails.slice();
+    if (salesMonthFilter) filtered = filtered.filter(d => (d.date||'').startsWith(salesMonthFilter));
+    filtered.sort((a,b) => (b.date||'').localeCompare(a.date||''));
+
+    const periodTotal = filtered.reduce((s,d) => s + d.gainDisplay, 0);
+    const periodLabel = salesMonthFilter ? monthLabel(salesMonthFilter) : 'todos os períodos';
+    document.getElementById('salesPeriodTotal').innerHTML =
+      `lucro realizado em ${periodLabel}: <span class="amt ${cls(periodTotal)}">${fmtMoney(periodTotal)}</span>`;
+
+    if (filtered.length === 0) {
+      el.innerHTML = `<div class="empty small">nenhuma venda encontrada nesse período.</div>`;
+      return;
+    }
+
+    const showRateCol = currency === 'BRL';
+    const hasFeeCol = filtered.some(d => d.fee);
+    el.innerHTML = `
+      <div class="coin-group">
+        <div class="overflow-x">
+          <table>
+            <thead>
+              <tr>
+                <th>data</th>
+                <th>moeda</th>
+                <th class="num">qtd. vendida</th>
+                <th class="num">preço venda</th>
+                ${hasFeeCol ? '<th class="num">taxa</th>' : ''}
+                ${showRateCol ? '<th class="num">câmbio na venda</th>' : ''}
+                <th class="num">PM na hora</th>
+                <th class="num">custo</th>
+                <th class="num">recebido</th>
+                <th class="num">resultado</th>
+                <th class="num">%</th>
+                <th class="num"></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filtered.map(d => `
+                <tr data-id="${d.id}">
+                  <td>${d.date || '—'}</td>
+                  <td>${d.coin}</td>
+                  <td class="num">${fmtQty(d.qty)}</td>
+                  <td class="num">${fmtPrice(d.sellPrice, 'USDT')}</td>
+                  ${hasFeeCol ? `<td class="num">${d.fee ? fmtNum(d.fee, 'USDT') : '—'}</td>` : ''}
+                  ${showRateCol ? `<td class="num">${d.dollarRate ? d.dollarRate.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}</td>` : ''}
+                  <td class="num">${fmtPrice(allStats[d.coin].avgPrice, 'USDT')}</td>
+                  <td class="num">${fmtMoney(d.costDisplay)}</td>
+                  <td class="num">${fmtMoney(d.receivedDisplay)}</td>
+                  <td class="num ${cls(d.gainDisplay)}">${fmtMoney(d.gainDisplay)}</td>
+                  <td class="num ${cls(d.gainDisplay)}">${fmtPct(d.pct)}</td>
+                  <td class="num"><button class="del-btn" data-delsale="${d.id}">remover</button></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+    el.querySelectorAll('[data-delsale]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        sales = sales.filter(s => s.id !== btn.dataset.delsale);
+        saveSales(); render();
+      });
+    });
+  }
+
+  document.getElementById('salesMonthFilter').addEventListener('change', (e) => {
+    salesMonthFilter = e.target.value;
+    render();
+  });
 
   // Busca crua o preço na Binance, sem tocar em UI. Retorna número ou null.
   async function fetchBinancePrice(coin){
@@ -461,29 +835,25 @@ PEPE	100	0.0000098"></textarea>
       const data = await res.json();
       const price = parseFloat(data.price);
       return isFinite(price) ? price : null;
-    } catch (e) {
-      return null;
-    }
+    } catch (e) { return null; }
   }
 
   async function fetchPriceForButton(coin, btn){
     const original = btn.textContent;
-    btn.textContent = 'buscando...';
-    btn.disabled = true;
+    btn.textContent = 'buscando...'; btn.disabled = true;
     const price = await fetchBinancePrice(coin);
     if (price !== null) {
       purchases.forEach(p => { if (p.coin === coin) p.currentPrice = price; });
       save(); render();
     } else {
-      btn.textContent = original;
-      btn.disabled = false;
+      btn.textContent = original; btn.disabled = false;
       alert('não foi possível buscar o preço de ' + coin + ' automaticamente aqui.\n\nisso costuma acontecer no link hospedado pelo Claude, que bloqueia esse tipo de requisição por segurança — mas funciona normalmente se você hospedar a página em outro lugar (ex: GitHub Pages).\n\nvocê pode continuar preenchendo o preço manualmente.');
     }
   }
 
   async function fetchAllPrices(silent){
     const btn = document.getElementById('updateAllBtn');
-    const coins = Object.keys(coinList());
+    const coins = Array.from(new Set(purchases.map(p => p.coin)));
     if (coins.length === 0) return;
     const originalText = btn ? btn.textContent : '';
     if (btn) { btn.textContent = 'atualizando...'; btn.disabled = true; }
@@ -495,9 +865,7 @@ PEPE	100	0.0000098"></textarea>
       if (results[i] !== null) {
         purchases.forEach(p => { if (p.coin === coin) p.currentPrice = results[i]; });
         updated++;
-      } else {
-        failed.push(coin);
-      }
+      } else { failed.push(coin); }
     });
 
     if (updated > 0) save();
@@ -517,9 +885,7 @@ PEPE	100	0.0000098"></textarea>
     const el = document.getElementById('computedQty');
     if (isFinite(usdt) && isFinite(price) && price > 0) {
       el.textContent = 'quantidade calculada: ' + (usdt/price).toLocaleString('pt-BR', {maximumFractionDigits: 8});
-    } else {
-      el.textContent = '';
-    }
+    } else { el.textContent = ''; }
   }
   document.getElementById('f-usdt').addEventListener('input', updateComputedQty);
   document.getElementById('f-price').addEventListener('input', updateComputedQty);
@@ -528,6 +894,7 @@ PEPE	100	0.0000098"></textarea>
     const coinEl = document.getElementById('f-coin');
     const usdtEl = document.getElementById('f-usdt');
     const priceEl = document.getElementById('f-price');
+    const feeEl = document.getElementById('f-fee');
     const rateEl = document.getElementById('f-rate');
     const dateEl = document.getElementById('f-date');
     const errEl = document.getElementById('errorMsg');
@@ -536,6 +903,7 @@ PEPE	100	0.0000098"></textarea>
     const coin = coinEl.value.trim().toUpperCase();
     const usdtSpent = parseFloat(usdtEl.value);
     const price = parseFloat(priceEl.value);
+    const fee = parseFloat(feeEl.value);
     const dollarRate = parseFloat(rateEl.value);
     const date = dateEl.value;
 
@@ -546,18 +914,68 @@ PEPE	100	0.0000098"></textarea>
     const qty = usdtSpent / price;
     purchases.push({
       id: uid(), coin, usdtSpent, price, qty,
+      fee: isFinite(fee) && fee > 0 ? fee : null,
       dollarRate: isFinite(dollarRate) && dollarRate > 0 ? dollarRate : null,
       currentPrice: price, date: date || ''
     });
     save();
-    coinEl.value = ''; usdtEl.value = ''; priceEl.value = ''; rateEl.value = ''; dateEl.value = '';
+    coinEl.value = ''; usdtEl.value = ''; priceEl.value = ''; feeEl.value = ''; rateEl.value = ''; dateEl.value = '';
     document.getElementById('computedQty').textContent = '';
     coinEl.focus();
     render();
   });
 
+  function updateSellAvailable(){
+    const coin = document.getElementById('s-coin').value.trim().toUpperCase();
+    const el = document.getElementById('sellAvailable');
+    if (!coin) { el.textContent = ''; return; }
+    const st = computeCoinStats(coin);
+    if (st.qtyBought === 0) { el.textContent = coin + ': nenhuma compra registrada ainda.'; return; }
+    el.textContent = 'disponível para vender: ' + fmtQty(st.qtyRemaining) + ' ' + coin + ' (PM/break-even: ' + fmtPrice(st.avgPrice, 'USDT') + ')';
+  }
+  document.getElementById('s-coin').addEventListener('input', updateSellAvailable);
+  document.getElementById('s-coin').addEventListener('change', updateSellAvailable);
+
+  document.getElementById('sellBtn').addEventListener('click', () => {
+    const coinEl = document.getElementById('s-coin');
+    const qtyEl = document.getElementById('s-qty');
+    const priceEl = document.getElementById('s-price');
+    const feeEl = document.getElementById('s-fee');
+    const rateEl = document.getElementById('s-rate');
+    const dateEl = document.getElementById('s-date');
+    const errEl = document.getElementById('sellErrorMsg');
+    errEl.textContent = '';
+
+    const coin = coinEl.value.trim().toUpperCase();
+    const qty = parseFloat(qtyEl.value);
+    const sellPrice = parseFloat(priceEl.value);
+    const fee = parseFloat(feeEl.value);
+    const dollarRate = parseFloat(rateEl.value);
+    const date = dateEl.value;
+
+    if (!coin) { errEl.textContent = 'informe a moeda.'; return; }
+    const st = computeCoinStats(coin);
+    if (st.qtyBought === 0) { errEl.textContent = 'essa moeda ainda não tem nenhuma compra registrada.'; return; }
+    if (!isFinite(qty) || qty <= 0) { errEl.textContent = 'informe a quantidade vendida.'; return; }
+    if (qty > st.qtyRemaining + 1e-9) {
+      errEl.textContent = 'quantidade maior que o saldo disponível (' + fmtQty(st.qtyRemaining) + ' ' + coin + ').';
+      return;
+    }
+    if (!isFinite(sellPrice) || sellPrice <= 0) { errEl.textContent = 'informe o preço de venda.'; return; }
+
+    sales.push({
+      id: uid(), coin, qty, sellPrice,
+      fee: isFinite(fee) && fee > 0 ? fee : null,
+      dollarRate: isFinite(dollarRate) && dollarRate > 0 ? dollarRate : null,
+      date: date || ''
+    });
+    saveSales();
+    coinEl.value = ''; qtyEl.value = ''; priceEl.value = ''; feeEl.value = ''; rateEl.value = ''; dateEl.value = '';
+    document.getElementById('sellAvailable').textContent = '';
+    render();
+  });
+
   function parseImportLine(line){
-    // Detecta separador: tab (colado de planilha) ou vírgula
     const delim = line.includes('\t') ? '\t' : ',';
     const parts = line.split(delim).map(s => s.trim());
     return {
@@ -568,7 +986,6 @@ PEPE	100	0.0000098"></textarea>
       date: parts[4] !== undefined ? parts[4].trim() : ''
     };
   }
-
   function isHeaderLine(line){
     const lower = line.toLowerCase();
     return lower.includes('moeda') && (lower.includes('usdt') || lower.includes('preço') || lower.includes('preco'));
@@ -585,24 +1002,19 @@ PEPE	100	0.0000098"></textarea>
     const raw = document.getElementById('importText').value;
     const feedback = document.getElementById('importFeedback');
     const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-
-    if (lines.length === 0) {
-      feedback.innerHTML = '<span class="err">cole ao menos uma linha para importar.</span>';
-      return;
-    }
+    if (lines.length === 0) { feedback.innerHTML = '<span class="err">cole ao menos uma linha para importar.</span>'; return; }
 
     let added = 0;
     const errors = [];
     lines.forEach((line, idx) => {
-      if (idx === 0 && isHeaderLine(line)) return; // pula cabeçalho, se houver
+      if (idx === 0 && isHeaderLine(line)) return;
       const row = parseImportLine(line);
       if (!row.coin) { errors.push('linha ' + (idx+1) + ': moeda não informada.'); return; }
       if (!isFinite(row.usdtSpent) || row.usdtSpent <= 0) { errors.push('linha ' + (idx+1) + ' (' + row.coin + '): valor de USDT gasto inválido.'); return; }
       if (!isFinite(row.price) || row.price <= 0) { errors.push('linha ' + (idx+1) + ' (' + row.coin + '): preço inválido.'); return; }
-
       purchases.push({
         id: uid(), coin: row.coin, usdtSpent: row.usdtSpent, price: row.price,
-        qty: row.usdtSpent / row.price,
+        qty: row.usdtSpent / row.price, fee: null,
         dollarRate: (row.dollarRate && isFinite(row.dollarRate) && row.dollarRate > 0) ? row.dollarRate : null,
         currentPrice: row.price, date: row.date || ''
       });
@@ -610,7 +1022,6 @@ PEPE	100	0.0000098"></textarea>
     });
 
     if (added > 0) { save(); render(); }
-
     let html = '';
     if (added > 0) html += '<span class="ok">' + added + ' compra(s) importada(s) com sucesso.</span>';
     if (errors.length > 0) {
@@ -621,31 +1032,22 @@ PEPE	100	0.0000098"></textarea>
     if (added > 0 && errors.length === 0) document.getElementById('importText').value = '';
   });
 
+  document.getElementById('exportCsvBtn').addEventListener('click', () => {
+    const rows = [['tipo','moeda','data','quantidade','preco_usdt','usdt_total','taxa_usdt','cambio_usd_brl']];
+    purchases.forEach(p => rows.push(['compra', p.coin, p.date||'', p.qty, p.price, p.usdtSpent, p.fee||'', p.dollarRate||'']));
+    sales.forEach(s => rows.push(['venda', s.coin, s.date||'', s.qty, s.sellPrice, (s.qty*s.sellPrice), s.fee||'', s.dollarRate||'']));
+    const csv = rows.map(r => r.map(csvCell).join(',')).join('\r\n');
+    downloadBlob(new Blob(['\ufeff' + csv], {type:'text/csv;charset=utf-8;'}), 'rastreador-cripto-' + new Date().toISOString().slice(0,10) + '.csv');
+  });
+
   document.getElementById('exportBtn').addEventListener('click', () => {
-    const backup = {
-      version: 2,
-      exportedAt: new Date().toISOString(),
-      purchases,
-      currency,
-      currentDollarRate,
-      sortMode
-    };
-    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    const dateStr = new Date().toISOString().slice(0,10);
-    a.href = url;
-    a.download = 'backup-rastreador-cripto-' + dateStr + '.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const backup = { version: 4, exportedAt: new Date().toISOString(), purchases, sales, currency, currentDollarRate, sortMode };
+    downloadBlob(new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }), 'backup-rastreador-cripto-' + new Date().toISOString().slice(0,10) + '.json');
   });
 
   document.getElementById('importBackupBtn').addEventListener('click', () => {
     document.getElementById('importBackupFile').click();
   });
-
   document.getElementById('importBackupFile').addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -654,21 +1056,21 @@ PEPE	100	0.0000098"></textarea>
       try {
         const backup = JSON.parse(reader.result);
         if (!Array.isArray(backup.purchases)) throw new Error('formato inválido');
+        const backupSales = Array.isArray(backup.sales) ? backup.sales : [];
         const action = confirm(
-          'carregar este backup vai SUBSTITUIR todos os dados salvos agora neste navegador (' + purchases.length + ' compra(s) atuais).\n\n' +
-          'o arquivo tem ' + backup.purchases.length + ' compra(s), de ' + (backup.exportedAt ? backup.exportedAt.slice(0,10) : 'data desconhecida') + '.\n\n' +
-          'quer continuar?'
+          'carregar este backup vai SUBSTITUIR todos os dados salvos agora neste navegador (' + purchases.length + ' compra(s) e ' + sales.length + ' venda(s) atuais).\n\n' +
+          'o arquivo tem ' + backup.purchases.length + ' compra(s) e ' + backupSales.length + ' venda(s), de ' + (backup.exportedAt ? backup.exportedAt.slice(0,10) : 'data desconhecida') + '.\n\nquer continuar?'
         );
         if (!action) return;
         purchases = backup.purchases;
+        sales = backupSales;
         if (backup.currency === 'USDT' || backup.currency === 'BRL') currency = backup.currency;
         if (typeof backup.currentDollarRate === 'number') currentDollarRate = backup.currentDollarRate;
         if (backup.sortMode === 'alpha' || backup.sortMode === 'usdt') sortMode = backup.sortMode;
-        save(); saveCurrency(); saveRate();
-        try { localStorage.setItem('crypto-tracker-sort-v1', sortMode); } catch(err){}
+        save(); saveSales(); saveCurrency(); saveRate(); saveSort();
         document.getElementById('sortSelect').value = sortMode;
         render();
-        alert('backup carregado com sucesso: ' + purchases.length + ' compra(s).');
+        alert('backup carregado com sucesso: ' + purchases.length + ' compra(s), ' + sales.length + ' venda(s).');
       } catch (err) {
         alert('não foi possível ler esse arquivo. verifique se é um backup gerado por esta ferramenta.');
       }
@@ -678,8 +1080,8 @@ PEPE	100	0.0000098"></textarea>
   });
 
   document.getElementById('clearAllBtn').addEventListener('click', () => {
-    if (confirm('apagar todas as compras registradas? essa ação não pode ser desfeita.')) {
-      purchases = []; save(); render();
+    if (confirm('apagar todas as compras e vendas registradas? essa ação não pode ser desfeita.')) {
+      purchases = []; sales = []; save(); saveSales(); render();
     }
   });
 
@@ -708,7 +1110,7 @@ PEPE	100	0.0000098"></textarea>
 
   document.getElementById('sortSelect').addEventListener('change', (e) => {
     sortMode = e.target.value;
-    try { localStorage.setItem('crypto-tracker-sort-v1', sortMode); } catch(err){}
+    saveSort();
     render();
   });
 
@@ -716,14 +1118,14 @@ PEPE	100	0.0000098"></textarea>
 
   load();
   try {
-    const savedSort = localStorage.getItem('crypto-tracker-sort-v1');
+    const savedSort = localStorage.getItem(SORT_KEY);
     if (savedSort === 'alpha' || savedSort === 'usdt') {
       sortMode = savedSort;
       document.getElementById('sortSelect').value = sortMode;
     }
   } catch(e){}
   render();
-  fetchAllPrices(true); // busca automática silenciosa ao abrir a página
+  fetchAllPrices(true);
 })();
 </script>
 </body>
